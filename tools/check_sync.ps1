@@ -4,7 +4,7 @@
 param([switch]$Quiet)
 $dst = Split-Path -Parent $PSScriptRoot
 $src = Join-Path (Split-Path -Parent $dst) 'LOOT HUNTER CC'
-$files = @('core','data','items','character','map','pack','sim','game','sprites','audio','music','render' | ForEach-Object { "js\$_.js" }) + @('tests\rules.test.js','tests\load.js')
+$files = @('core','data','items','character','map','pack','sim','game','sprites','kid','audio','music','render' | ForEach-Object { "js\$_.js" }) + @('tests\rules.test.js','tests\load.js')
 $bad = 0
 foreach ($f in $files) {
   $a = Join-Path $src $f; $b = Join-Path $dst $f
