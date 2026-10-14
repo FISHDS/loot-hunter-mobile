@@ -211,3 +211,7 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-siz
 
 /* 手機版主角是大頭，高度跟著圖片比例 */
 .doll .hero-big { height: auto; }
+
+/* 標題畫面：提示字移到按鈕上方，下方留給主角特寫 */
+#title .title-foot { margin: 0 0 14px; }
+#title .title-box { justify-content: flex-start; padding-top: calc(env(safe-area-inset-top, 0px) + 5vh); }
