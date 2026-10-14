@@ -1,12 +1,12 @@
 // 離線快取：第一次打開時把遊戲檔案存起來，之後沒網路也能玩。
 // 每次更新遊戲時把 VERSION 改掉，手機下次連上網就會換成新版。
-const VERSION = 'lh-m-4';
+const VERSION = 'lh-m-5';
 const FILES = [
-  './', 'index.html', 'style.css?v=4', 'm.css?v=4', 'manifest.webmanifest',
+  './', 'index.html', 'style.css?v=5', 'm.css?v=5', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
-  'js/core.js?v=4', 'js/data.js?v=4', 'js/items.js?v=4', 'js/character.js?v=4', 'js/map.js?v=4', 'js/pack.js?v=4',
-  'js/sim.js?v=4', 'js/game.js?v=4', 'js/sprites.js?v=4', 'js/kid.js?v=4', 'js/audio.js?v=4', 'js/music.js?v=4', 'js/render.js?v=4',
-  'js/ui.js?v=4', 'js/main.js?v=4',
+  'js/core.js?v=5', 'js/data.js?v=5', 'js/items.js?v=5', 'js/character.js?v=5', 'js/map.js?v=5', 'js/pack.js?v=5',
+  'js/sim.js?v=5', 'js/game.js?v=5', 'js/sprites.js?v=5', 'js/kid.js?v=5', 'js/audio.js?v=5', 'js/music.js?v=5', 'js/render.js?v=5',
+  'js/ui.js?v=5', 'js/main.js?v=5',
 ];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
