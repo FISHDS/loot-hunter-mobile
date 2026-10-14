@@ -1,0 +1,201 @@
+/* ===== 手機版（直向、單手） =====
+   建立日期：2026-10-14
+   疊在 style.css 之上，只改版面與觸控大小，不改顏色主題。 */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --nav: 60px;
+}
+html, body { height: 100%; overscroll-behavior: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; }
+#app { position: fixed; inset: 0; }
+button, .btn, .chip { touch-action: manipulation; }
+.hide { display: none !important; }
+.tip-float { display: none !important; }
+
+/* 按鈕放大到手指按得準 */
+.btn, button.btn { padding: 9px 14px; font-size: 14px; min-height: 40px; }
+.btn.small { padding: 6px 10px; font-size: 13px; min-height: 34px; }
+.btn.big { padding: 14px 20px; font-size: 22px; letter-spacing: 6px; }
+.chip { min-height: 32px; padding: 5px 10px; font-size: 13px; }
+.seg button { padding: 9px 12px; font-size: 14px; }
+
+/* ---------- 標題 ---------- */
+.logo { font-size: 46px; letter-spacing: 3px; }
+.logo .cc { right: -34px; font-size: 16px; }
+.logo-sub { font-size: 18px; letter-spacing: 9px; margin-top: 10px; }
+.title-tag { font-size: 12px; letter-spacing: 1px; }
+.title-btns { min-width: 0; width: min(300px, 82vw); margin-top: 26px; }
+.emblem { width: 96px !important; height: auto !important; }
+
+/* ---------- 營地 ---------- */
+.topbar { height: calc(46px + var(--sat)); padding: var(--sat) 10px 0; gap: 10px; }
+.topbar .brand { display: none; }
+.top-res { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.top-res .xpbar { flex: 1; width: auto; min-width: 60px; }
+.top-actions .ghost { font-size: 20px; padding: 4px 10px; }
+.camp-body { position: absolute; top: calc(46px + var(--sat)); bottom: calc(var(--nav) + var(--sab)); left: 0; right: 0; display: block; padding: 8px 8px 16px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.hero-panel { width: auto; display: none; gap: 8px; margin-bottom: 8px; }
+body[data-tab="expedition"] .hero-panel { display: flex; }
+#camp-cv { width: 100%; height: 132px; object-fit: cover; object-position: 50% 70%; border-radius: 8px; }
+.camp-main { display: block; }
+.tab-body { border: none; background: none; padding: 0; overflow: visible; min-height: 0; }
+
+/* 底部分頁 */
+.bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--nav) + var(--sab)); padding-bottom: var(--sab); display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; background: linear-gradient(#1a1422, #0c0911); border-top: 1px solid var(--line2); z-index: 20; }
+.bottom-nav button { border: none; border-radius: 0; background: none; padding: 4px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; color: var(--muted); }
+.bottom-nav button i { font-style: normal; font-size: 20px; line-height: 1; }
+.bottom-nav button.on { color: var(--gold2); background: radial-gradient(ellipse at 50% 0%, rgba(230,185,85,.22), transparent 70%); }
+.bottom-nav button .badge { top: 2px; right: 18%; }
+
+/* 角色摘要：一行精簡 */
+.hs-card { padding: 8px 10px; }
+.hs-mini { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--muted); }
+.hs-mini b { color: var(--text); font-weight: 500; }
+.hs-card .est3 { margin-top: 6px; }
+.hs-card .pts-badge { margin-top: 8px; }
+
+/* 所有多欄排版改成單欄 */
+.exp-grid, .gear-grid, .stars-grid, .ws-grid, .auto-grid { grid-template-columns: 1fr !important; height: auto !important; min-height: 0 !important; gap: 10px; }
+.panel h3 { padding: 9px 12px; font-size: 15px; flex-wrap: wrap; }
+.panel .pbody { padding: 10px 12px; }
+.dungeon-row { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.dcard { min-height: 104px; padding: 10px; }
+.dcard .dname { font-size: 16px; }
+.dcard .ddesc { font-size: 11px; -webkit-line-clamp: 2; }
+.go-row { flex-direction: column; align-items: stretch; position: sticky; bottom: -16px; padding: 10px 0 12px; background: linear-gradient(rgba(13,10,18,0), #0d0a12 30%); margin-top: 8px; }
+.go-row .note { font-size: 11px; }
+.go-row .btn.big { width: 100%; }
+.pot-row { grid-template-columns: 24px 1fr auto; row-gap: 6px; }
+.pot-row > div:last-child { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; }
+.wave-row input[type=range] { flex: 1; min-width: 0; height: 30px; }
+.seg { flex-wrap: wrap; }
+.abyss-row { flex-wrap: wrap; }
+.mods-foot .btn { width: 100%; }
+
+/* 裝備 */
+.doll { transform-origin: top center; }
+.stash { gap: 6px; }
+.item { width: 54px; height: 54px; }
+.stash-head { gap: 6px; }
+.bulk { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.loadouts .lo-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.gear-grid .modal-foot { padding: 10px 0 0; border: none; }
+
+/* 星盤：放在最上面、夠大，可以兩指縮放 */
+.stars-grid { display: flex !important; flex-direction: column-reverse; }
+.starwrap { min-height: 0; }
+.starmap { height: 62dvh; min-height: 340px; touch-action: none; }
+.star-bar { flex-wrap: wrap; gap: 6px; }
+.star-bar .note { display: none; }
+.tagrow { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* 工坊 */
+.ws-grid > .panel:first-child .pbody { max-height: 36dvh; overflow: auto; }
+
+/* 掛機設定 */
+.rule { grid-template-columns: 26px 1fr auto; gap: 8px; }
+.rule .conds { grid-column: 1 / -1; }
+.rule select, .rule input[type=number] { min-height: 32px; font-size: 14px; }
+
+/* 更多 */
+.more-list { display: grid; gap: 10px; }
+.more-list .btn { width: 100%; justify-content: flex-start; text-align: left; font-size: 16px; padding: 14px 16px; }
+.more-row { display: flex; gap: 8px; }
+.more-row .btn { flex: 1; text-align: center; }
+
+/* ---------- 彈出視窗 ---------- */
+.modal-back { align-items: flex-end; padding-top: var(--sat); }
+.modal, .modal.narrow { width: 100vw; max-height: calc(100dvh - var(--sat)); border-radius: 14px 14px 0 0; padding-bottom: var(--sab); }
+.modal-head { padding: 12px 14px; flex-wrap: wrap; gap: 6px 12px; }
+.modal-head h2 { font-size: 21px; }
+.modal-body { padding: 12px 14px; }
+.modal-foot { padding: 10px 14px; flex-wrap: wrap; }
+.rep-stats { grid-template-columns: repeat(2, 1fr) !important; }
+
+/* 樓層整理：上背包、下待整理與詳情 */
+.modal.loot-m .modal-body { padding: 10px 12px; }
+.loot-m .loot-top { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.loot-m .bag .cell { cursor: pointer; }
+.loot-m .bag .cell.target { background: rgba(230,185,85,.12); }
+.loot-m .pending { min-height: 64px; width: 100%; }
+.loot-m .loot-hint { font-size: 12px; color: var(--muted); text-align: center; }
+.loot-m .loot-sel { width: 100%; margin-top: 8px; padding: 10px; border: 1px solid var(--line2); border-radius: 8px; background: #120e18; }
+.loot-m .loot-sel .detail-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.loot-m .modal-foot .btn { flex: 1 1 auto; }
+
+/* ---------- 下方說明卡 ---------- */
+.sheet-back { position: fixed; inset: 0; background: rgba(4,2,8,.55); z-index: 90; animation: fadein .15s; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; max-height: 80dvh; overflow-y: auto; z-index: 91; background: linear-gradient(#211a2c, #120e18); border-top: 2px solid var(--line2); border-radius: 16px 16px 0 0; padding: 8px 14px calc(14px + var(--sab)); box-shadow: 0 -10px 30px rgba(0,0,0,.6); animation: sheetUp .22s ease-out; }
+.sheet .grab { width: 42px; height: 5px; background: #4a3a58; border-radius: 3px; margin: 2px auto 10px; }
+.sheet.r3 { border-top-color: #6b3fa0; } .sheet.r4 { border-top-color: #d08030; } .sheet.r5 { border-top-color: #e0405e; } .sheet.ru { border-top-color: #c9a040; box-shadow: 0 -10px 34px rgba(230,192,104,.25); }
+.sheet .tip-name { font-size: 19px; }
+.sheet .detail-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; position: sticky; bottom: calc(-14px - var(--sab)); padding: 10px 0 4px; background: #130f19; }
+.sheet .detail-actions .btn { flex: 1 1 40%; }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+
+/* ---------- 地城 ---------- */
+#dungeon .hud-top { height: auto; padding: calc(var(--sat) + 4px) 10px 5px; flex-direction: column; align-items: stretch; gap: 3px; }
+#dungeon .dn-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-row2 { display: flex; align-items: center; gap: 8px; }
+.hud-row2 .dn-floor { font-size: 13px; white-space: nowrap; }
+.hud-row2 .killbar { flex: 1; width: auto; }
+.hud-row2 .dn-mobs { font-size: 12px; white-space: nowrap; }
+#dungeon .stage-wrap { top: calc(52px + var(--sat)); bottom: calc(186px + var(--sab)); }
+#dungeon .stage { touch-action: none; }
+#dungeon .hud-bottom { bottom: calc(48px + var(--sab)); height: 138px; gap: 6px; padding: 0 6px; justify-content: space-between; border-top: 1px solid var(--line); }
+#dungeon .orb { width: 62px; height: 62px; flex: none; }
+#dungeon .orb span { font-size: 12px; }
+.skill-col { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.skill-col .hxp { height: 4px; }
+#dungeon .skillbar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+#dungeon .si { width: auto; height: auto; aspect-ratio: 1; max-height: 52px; font-size: 18px; border-radius: 8px; }
+#dungeon .si.empty { opacity: .35; }
+#dungeon .si .key { display: none; }
+#dungeon .si .slotn { display: none; }
+#dungeon .si .mana { font-size: 9px; }
+#dungeon .si img.sico { width: 70%; height: 70%; }
+.pots { display: flex; justify-content: center; gap: 22px; }
+.pots .pot { flex-direction: row; gap: 4px; }
+.pots .pot i { width: 20px; height: 20px; }
+.pots .pot b { font-size: 12px; }
+#dungeon .hud-controls { position: absolute; left: 0; right: 0; bottom: 0; height: calc(48px + var(--sab)); padding: 6px 6px var(--sab); display: flex; gap: 6px; align-items: center; justify-content: center; background: #0b0810; z-index: 6; }
+#dungeon .hud-controls .seg button { padding: 8px 10px; font-size: 13px; }
+#dungeon .hud-controls .tog { padding: 8px 10px; font-size: 13px; min-height: 36px; }
+.bossbar { width: 82%; top: 6px; }
+.toasts { top: 44px; width: 92%; }
+.toast { font-size: 12px; white-space: normal; text-align: center; padding: 4px 10px; }
+.toast.uniq { font-size: 15px; }
+.minimap { width: 32%; left: 6px; top: 6px; }
+.tray { right: 6px; top: 6px; width: 44px; padding: 4px 2px; }
+.tray-title { font-size: 10px; }
+.overlay-msg .big { font-size: 24px; }
+.overlay-msg { text-align: center; padding: 0 16px; }
+
+/* 很矮的手機：技能列縮小 */
+@media (max-height: 680px) {
+  #dungeon .hud-bottom { height: 118px; }
+  #dungeon .stage-wrap { bottom: calc(166px + var(--sab)); }
+  #dungeon .si { max-height: 44px; }
+  #dungeon .orb { width: 54px; height: 54px; }
+}
+.go-row { background: #0d0a12; box-shadow: 0 -14px 16px #0d0a12; }
+.go-row .note { display: none; }
+/* 星盤：地圖更高、主題列改成可左右滑動的一行 */
+.starwrap { display: flex; flex-direction: column; height: auto !important; }
+.starmap { height: 64vh !important; min-height: 360px !important; flex: none; }
+.star-bar { flex-wrap: nowrap; overflow-x: auto; padding: 6px 8px; gap: 6px; }
+.star-bar > b, .star-bar .spacer, .star-bar [data-act="starZoom"] { display: none; }
+.tagrow { flex-wrap: nowrap; white-space: nowrap; }
+.tagrow .chip { min-height: 30px; padding: 4px 8px; font-size: 12px; }
+.rule { grid-template-columns: 26px 1fr; }
+.rule > div:last-child { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 6px; }
+.rule > div:last-child .btn { min-width: 44px; }
+/* 地城下方操作列：一行放得下 */
+#dungeon .hud-controls { gap: 5px; padding-left: 4px; padding-right: 4px; }
+#dungeon .hud-controls .seg { flex-wrap: nowrap; flex: none; }
+#dungeon .hud-controls .seg button { padding: 7px 8px; font-size: 13px; white-space: nowrap; }
+#dungeon .hud-controls .tog { padding: 7px 8px; font-size: 13px; white-space: nowrap; flex: none; }
+/* 戰利品寶石：排成小方塊，不要拉成長條 */
+.tray { width: 52px; }
+.tray-gems { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 3px; max-height: 120px; overflow: hidden; }
+.tray-gems .gem { width: 10px; height: 10px; }

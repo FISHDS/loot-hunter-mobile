@@ -1,0 +1,17 @@
+{
+  "name": "獵寶者 LOOT HUNTERS",
+  "short_name": "獵寶者",
+  "description": "放置刷寶 RPG：自動打怪、收集傳奇寶物、配裝與星盤。",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0a12",
+  "theme_color": "#0d0a12",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

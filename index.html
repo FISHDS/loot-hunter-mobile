@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d0a12">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="獵寶者">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>獵寶者 LOOT HUNTERS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=1">
+<link rel="stylesheet" href="m.css?v=1">
+<script>window.LH_VIEW = { w: 420, h: 640 }; window.LH_MOBILE = true;</script>
+</head>
+<body>
+<div id="app">
+
+  <!-- 標題畫面 -->
+  <section id="title" class="screen active">
+    <canvas id="title-cv"></canvas>
+    <div class="title-box">
+      <img class="emblem" id="t-emblem" alt="">
+      <div class="logo"><span class="l1">LOOT</span><span class="l2">HUNTERS</span><span class="cc">CC</span></div>
+      <div class="logo-sub"><i></i>黑 晶 礦 坑<i></i></div>
+      <div class="title-tag">放置刷寶・深度配裝・看準時機出手</div>
+      <div class="title-btns" id="title-btns"></div>
+      <div class="title-foot">手機版・可以「加到主畫面」當成 App 使用</div>
+    </div>
+  </section>
+
+  <!-- 營地 -->
+  <section id="camp" class="screen">
+    <header class="topbar">
+      <div class="top-res">
+        <div class="res gold"><i class="coin"></i><b id="t-gold">0</b></div>
+        <div class="res"><span>Lv</span><b id="t-level">1</b></div>
+        <div class="xpbar"><div id="t-xp"></div><span id="t-xptext"></span></div>
+      </div>
+      <div class="top-actions">
+        <button class="ghost hide" data-act="music" id="btn-music">音樂：中</button>
+        <button class="ghost hide" data-act="sound" id="btn-sound">音效：大</button>
+        <button class="ghost" data-act="menu" aria-label="選單">☰</button>
+      </div>
+    </header>
+    <div class="camp-body">
+      <aside class="hero-panel">
+        <canvas id="camp-cv" width="300" height="190"></canvas>
+        <div id="hero-summary"></div>
+      </aside>
+      <main class="camp-main">
+        <div id="tab-body" class="tab-body"></div>
+      </main>
+    </div>
+    <nav class="tabs bottom-nav" id="tabs">
+      <button data-tab="expedition" class="on"><i>⚔</i>出征</button>
+      <button data-tab="gear"><i>◈</i>裝備</button>
+      <button data-tab="stars"><i>✦</i>星盤</button>
+      <button data-tab="forge"><i>⚒</i>工坊</button>
+      <button data-tab="more"><i>☰</i>更多</button>
+    </nav>
+  </section>
+
+  <!-- 地城 -->
+  <section id="dungeon" class="screen">
+    <div class="hud-top">
+      <div class="dn-name" id="h-name">黑晶礦坑・普通</div>
+      <div class="hud-row2">
+        <span class="dn-floor" id="h-floor">第 1 / 5 層</span>
+        <div class="killbar"><div id="h-kill"></div><span id="h-killtext"></span></div>
+        <span class="dn-mobs" id="h-mobs">場上 0 隻</span>
+      </div>
+    </div>
+    <div class="stage-wrap">
+      <div class="stage" id="stage">
+        <canvas id="cv"></canvas>
+        <canvas id="minimap" class="minimap"></canvas>
+        <div class="bossbar" id="h-boss"><div class="bb-name"></div><div class="bb-bar"><div></div></div><div class="bb-move"></div></div>
+        <div class="toasts" id="toasts"></div>
+        <div class="tray" id="tray"><div class="tray-title">戰利品</div><div class="tray-gems" id="tray-gems"></div></div>
+        <div class="overlay-msg" id="ov-msg"></div>
+      </div>
+    </div>
+    <div class="hud-bottom">
+      <div class="orb hp"><div class="orb-fill" id="o-hp"></div><i class="bub" style="left:30%;animation-delay:0s"></i><i class="bub" style="left:60%;animation-delay:1.3s"></i><div class="orb-gloss"></div><span id="o-hptext"></span></div>
+      <div class="skill-col">
+        <div class="hxp"><div id="h-xp"></div></div>
+        <div class="skillbar" id="skillbar"></div>
+        <div class="pots">
+          <div class="pot red"><i></i><b id="p-red">0</b></div>
+          <div class="pot blue"><i></i><b id="p-blue">0</b></div>
+        </div>
+      </div>
+      <div class="orb mp"><div class="orb-fill" id="o-mp"></div><i class="bub" style="left:40%;animation-delay:.6s"></i><i class="bub" style="left:68%;animation-delay:2s"></i><div class="orb-gloss"></div><span id="o-mptext"></span></div>
+    </div>
+    <div class="hud-controls">
+      <div class="seg" id="h-mode"><button data-act="mode" data-v="active">主動</button><button data-act="mode" data-v="idle">掛機</button></div>
+      <div class="seg" id="h-speed"><button data-act="speed" data-v="1">1×</button><button data-act="speed" data-v="2">2×</button><button data-act="speed" data-v="3">3×</button></div>
+      <button class="tog" id="h-auto" data-act="autocast">自動：開</button>
+      <button class="tog" id="h-retreat" data-act="retreatAfter">撤退</button>
+    </div>
+  </section>
+
+  <div id="sheet-root"></div>
+  <div id="modal-root"></div>
+  <div id="tip" class="tip-float"></div>
+  <div id="drag-ghost"></div>
+</div>
+
+<script src="js/core.js?v=1"></script>
+<script src="js/data.js?v=1"></script>
+<script src="js/items.js?v=1"></script>
+<script src="js/character.js?v=1"></script>
+<script src="js/map.js?v=1"></script>
+<script src="js/pack.js?v=1"></script>
+<script src="js/sim.js?v=1"></script>
+<script src="js/game.js?v=1"></script>
+<script src="js/sprites.js?v=1"></script>
+<script src="js/audio.js?v=1"></script>
+<script src="js/music.js?v=1"></script>
+<script src="js/render.js?v=1"></script>
+<script src="js/ui.js?v=1"></script>
+<script src="js/main.js?v=1"></script>
+<script>
+  // 可以離線玩：註冊快取（只有放在網站上時才會生效）
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+</script>
+</body>
+</html>
