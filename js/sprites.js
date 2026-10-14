@@ -1373,10 +1373,13 @@
       r(4, 16, 2, 2, '#d8cfb4'); r(14, 16, 2, 2, '#d8cfb4'); r(4, 17, 2, 1, '#a89880'); r(14, 17, 2, 1, '#a89880');
       r(4, 16, 2, 1, htr); r(14, 16, 2, 1, htr);
     }
-    // 頭
+    // 頭（手機版可以用 HERO.head 換成自己的頭）
     r(9, 10, 2, 1, SKIN);
     const hd = clsOf(L.head), hdr = L.head ? L.head.r : 0, hdt = RAR_TRIM[hdr];
-    if (hd === 'cloth') {
+    if (HERO.head) {
+      const hc = hd === 'cloth' && bc === 'cloth' ? CLOTH[br] : hd === 'cloth' ? CLOTH[hdr] : hd === 'heavy' ? METAL[hdr] : hd === 'light' ? LEATHER[hdr] : null;
+      HERO.head(x, { cls: hd, col: hc, trim: hdt, skin: SKIN });
+    } else if (hd === 'cloth') {
       const C = bc === 'cloth' ? CLOTH[br] : CLOTH[hdr];
       r(5, 2, 10, 9, C[0]); r(8, 1, 4, 1, C[0]); r(9, 0, 2, 1, C[0]);
       r(7, 4, 6, 6, '#1a1420'); r(8, 6, 1, 1, hdt === RAR_TRIM[0] ? '#b46cff' : hdt); r(11, 6, 1, 1, hdt === RAR_TRIM[0] ? '#b46cff' : hdt);
@@ -1407,10 +1410,12 @@
       r(0, 11, 2, 2, '#7fe7ff'); r(0, 11, 1, 1, '#ffffff');
     }
   }
+  // 主角圖的大小：電腦版 22×26；top＝頭頂多留的高度（手機版的大頭用）；head＝換頭的畫法
+  const HERO = { w: 22, h: 26, top: 0, head: null };
   const dollCache = {};
   function heroImg(L) {
     const k = lookKey(L);
-    if (!dollCache[k]) dollCache[k] = shade(proc(22, 26, (x) => drawDoll(x, L)));
+    if (!dollCache[k]) dollCache[k] = shade(proc(HERO.w, HERO.h + HERO.top, (x) => { x.translate(0, HERO.top); drawDoll(x, L); }));
     return dollCache[k];
   }
   function heroFrames(L) {
@@ -1541,5 +1546,5 @@
     return (urlCache[k] = c.toDataURL());
   }
 
-  LH.Spr = { get, flash, iconURL, spriteURL, PAL, frames, flashFrame, skillIconURL, glow, shade, emblemURL, lookOf, heroFrames, heroURL, heroImg };
+  LH.Spr = { get, flash, iconURL, spriteURL, PAL, frames, flashFrame, skillIconURL, glow, shade, emblemURL, lookOf, heroFrames, heroURL, heroImg, HERO };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -5,6 +5,9 @@
   const { U, D, Items, Char, Game, Pack, Spr, Sim } = LH;
 
   const $ = (id) => document.getElementById(id);
+  // 傷害數字顯示：全部 → 只看技能 → 關閉
+  const DMG_NAME = { all: '全部', big: '只看技能', off: '關閉' };
+  const DMG_NEXT = { all: 'big', big: 'off', off: 'all' };
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const UI = {
     G: null, screen: 'title', tab: 'expedition', sel: null, gearFilter: 'all', gearSort: 'rarity', starSel: null,
@@ -285,9 +288,9 @@
       <button class="btn" data-act="tab" data-v="auto">⚙ 掛機設定 <small style="color:var(--muted)">技能規則、喝藥門檻</small></button>
       <button class="btn" data-act="tab" data-v="records">☷ 出征紀錄</button>
       <div class="more-row"><button class="btn" data-act="music">音樂：${VN[S.musicVol]}</button><button class="btn" data-act="sound">音效：${VN[S.sfxVol]}</button></div>
-      <div class="more-row"><button class="btn" data-act="quality">畫質：${S.low ? '省電' : '高'}</button><button class="btn" data-act="help">玩法說明</button></div>
-      <button class="btn" data-act="menu">存檔與選單</button>
-      <div class="note">畫質「省電」會減少光影與粒子特效，舊手機比較不會卡、也比較省電。</div>
+      <div class="more-row"><button class="btn" data-act="quality">畫質：${S.low ? '省電' : '高'}</button><button class="btn" data-act="dmgNum">傷害數字：${DMG_NAME[S.dmgNum || 'all']}</button></div>
+      <div class="more-row"><button class="btn" data-act="help">玩法說明</button><button class="btn" data-act="menu">存檔與選單</button></div>
+      <div class="note">畫質「省電」會減少光影與粒子特效，舊手機比較不會卡、也比較省電。<br>傷害數字可以選「全部／只看技能／關閉」，怪物多的時候畫面比較乾淨。</div>
     </div></div>`;
   }
 
@@ -1182,6 +1185,7 @@
     sound: () => { const S = UI.G.settings; S.sfxVol = (S.sfxVol + 3) % 4; S.sound = S.sfxVol > 0; LH.Sfx.setLevel(S.sfxVol); renderCamp(); UI.onSave && UI.onSave(); },
     music: () => { const S = UI.G.settings; S.musicVol = (S.musicVol + 3) % 4; LH.Music.setLevel(S.musicVol); renderCamp(); UI.onSave && UI.onSave(); },
     quality: () => { const S = UI.G.settings; S.low = !S.low; LH.Render.R.low = !!S.low; renderCamp(); },
+    dmgNum: () => { const S = UI.G.settings; S.dmgNum = DMG_NEXT[S.dmgNum || 'all']; renderCamp(); UI.onSave && UI.onSave(); },
     closeSheet: () => { closeSheet(); if (UI.screen === 'camp') { UI.sel = null; renderCamp(); } },
     lootRot: () => {
       const G = UI.G, run = G.run;
@@ -1690,12 +1694,14 @@
     const fr = moving ? hf.walk[Math.floor(campT * 8) % 4] : hf.idle[Math.floor(campT * 1.6) % 2];
     shadow(CAMP.hx, 10);
     x.save();
-    x.translate(Math.round(CAMP.hx), 106);
+    // 主角腳踩在 y=158；手機版主角比較大（大頭）
+    const HS = (root.LH_VIEW && root.LH_VIEW.hero) || 1, fw = fr.width * 2 * HS, fh = fr.height * 2 * HS;
+    x.translate(Math.round(CAMP.hx), 158 - fh);
     if (CAMP.face < 0) x.scale(-1, 1);
-    x.drawImage(fr, -22, 0, 44, 52);
+    x.drawImage(fr, -fw / 2, 0, fw, fh);
     x.restore();
     const bob = fr === hf.idle[1] || fr === hf.walk[1] || fr === hf.walk[3] ? 2 : 0;
-    LH.Render.drawHeld(x, UI.G.gear, Math.round(CAMP.hx) + CAMP.face * 10, 106 + 37 + bob, CAMP.face < 0 ? -1 : 1);
+    LH.Render.drawHeld(x, UI.G.gear, Math.round(CAMP.hx) + CAMP.face * 10 * HS, 158 - (15 - bob) * HS, CAMP.face < 0 ? -1 : 1, HS);
     // 火光照亮整個營地
     x.save();
     x.globalCompositeOperation = 'lighter';

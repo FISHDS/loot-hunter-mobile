@@ -8,6 +8,7 @@
   const S = 2;
   // 螢幕畫布大小：電腦版 960×576；手機版在載入前設定 LH_VIEW 改成直向
   const VIEW = root.LH_VIEW || {};
+  const HS = VIEW.hero || 1; // 主角放大倍數
   const SW = VIEW.w || 30 * T, SH = VIEW.h || 18 * T;
   let W = SW, H = SH; // 鏡頭看到的世界範圍（放大時變小）
 
@@ -395,6 +396,49 @@
   // 低畫質：粒子減半、不用模糊濾鏡（手機省電）
   function part(o) { if (R.low && Math.random() < 0.5) return; R.parts.push(Object.assign({ vx: 0, vy: 0, g: 0, life: 0.6, t: 0, size: 3, col: '#fff' }, o)); }
   function text(x, y, s, col, big) { R.texts.push({ x, y, s, col, big, t: 0, life: big ? 1.0 : 0.8, vx: (Math.random() - 0.5) * 20 }); }
+  // 傷害數字：同一隻怪短時間內連續受傷就合併成一個數字（有技能命中就變大字）；
+  // 從頭頂上方冒出，先找沒有被別的數字佔住的位置，不蓋住怪物
+  const DMG_CAP = 20;
+  function dmgText(e, col) {
+    const S = LH.UI && LH.UI.G && LH.UI.G.settings;
+    const mode = (S && S.dmgNum) || 'all';
+    if (mode === 'off' || (mode === 'big' && !e.big)) return;
+    const key = e.id != null ? e.id + (e.dot ? 'd' : 'h') : null;
+    if (key) {
+      // 只合併剛冒出 0.5 秒內的數字；一直被打的怪（例如頭目）每 0.5 秒換一個新數字飄走
+      const old = R.texts.find((q) => q.key === key && R.time - q.born < (e.dot ? 0.9 : 0.5));
+      if (old) {
+        old.v += e.v; old.s = String(old.v);
+        if (e.big && !old.big) { old.big = true; old.col = col; old.life = 1.0; }
+        else if (!old.big) old.col = col;
+        old.t = Math.min(old.t, 0.12);
+        return;
+      }
+    }
+    const X = cx(e.x), Y = cy(e.y);
+    const dmgs = R.texts.filter((q) => q.v != null);
+    if (dmgs.length >= DMG_CAP) {
+      // 太多了：踢掉最小的一個；新的比它還小就乾脆不顯示
+      let lo = null;
+      for (const q of dmgs) if (!q.big && (!lo || q.v < lo.v)) lo = q;
+      if (!lo || lo.v > e.v) return;
+      R.texts.splice(R.texts.indexOf(lo), 1);
+    }
+    R.dmgSide = -(R.dmgSide || 1);
+    const ox = e.dot ? 12 : R.dmgSide * (4 + Math.random() * 4);
+    // 往上找空位：跟畫面上其他數字太近就再往上一層（最多 4 層）
+    let y = Y - 26;
+    const hw = e.big ? 20 : 13;
+    for (let k = 0; k < 4; k++) {
+      const hit = dmgs.some((q) => q.cy != null && Math.abs(q.cx - (X + ox)) < hw + (q.big ? 20 : 13) && Math.abs(q.cy - y) < (e.big || q.big ? 16 : 11));
+      if (!hit) break;
+      y -= e.big ? 16 : 12;
+    }
+    R.texts.push({
+      x: X + ox, y, s: String(e.v), v: e.v, col, big: e.big, dot: e.dot, key, born: R.time,
+      t: 0, life: e.dot ? 0.75 : e.big ? 1.0 : 0.75, vx: ox * 0.6,
+    });
+  }
   function burst(x, y, col, n, spd, life) {
     for (let i = 0; i < n; i++) {
       const a = Math.random() * Math.PI * 2, v = spd * (0.3 + Math.random());
@@ -408,7 +452,7 @@
       switch (e.k) {
         case 'dmg': {
           const col = e.dot ? '#ff9a4a' : D.ELEM_COLOR[e.elem];
-          text(cx(e.x), cy(e.y) - 18, String(e.v), col, e.big);
+          dmgText(e, col);
           if (!e.dot) hitSpark(cx(e.x), cy(e.y), col, e.big);
           if (e.big) sfx && sfx.play('hit', { elem: e.elem });
           break;
@@ -1053,13 +1097,14 @@
     return null;
   }
   // 營地：英雄手上拿著目前的武器（雙持時另一把在身後）
-  function drawHeld(x, gear, hx, hy, face) {
+  function drawHeld(x, gear, hx, hy, face, sc) {
     if (!gear) return;
+    sc = sc || 1;
     const look = Spr.lookOf(gear);
     const mk = (it) => ({ base: it.base, kind: D.BASES[it.base].kind, elem: it.elem || 'phys' });
     const off = gear.offhand && gear.offhand.slot === 'weapon' ? gear.offhand : null;
-    if (off) drawWeapon(x, null, hx - face * 14, hy - 2, face, look, { w: mk(off), atk: 0, wr: off.rarity, u: !!off.uniq });
-    if (gear.weapon) drawWeapon(x, null, hx, hy, face, look, { w: mk(gear.weapon), atk: 0, wr: gear.weapon.rarity, u: !!gear.weapon.uniq });
+    if (off) drawWeapon(x, null, hx - face * 14 * sc, hy - 2 * sc, face, look, { w: mk(off), atk: 0, wr: off.rarity, u: !!off.uniq }, sc);
+    if (gear.weapon) drawWeapon(x, null, hx, hy, face, look, { w: mk(gear.weapon), atk: 0, wr: gear.weapon.rarity, u: !!gear.weapon.uniq }, sc);
   }
   function heroLook() {
     const G = LH.UI && LH.UI.G;
@@ -1086,8 +1131,15 @@
     x.restore();
   }
 
-  // o：指定要畫哪一把（營地、副手用），{ w, atk, wr, u }
-  function drawWeapon(x, run, hx, hy, face, look, o) {
+  // o：指定要畫哪一把（營地、副手用），{ w, atk, wr, u }；sc：放大倍數（手機版的主角比較大）
+  function drawWeapon(x, run, hx, hy, face, look, o, sc) {
+    if (!sc || sc === 1) return weaponAt(x, run, hx, hy, face, look, o, (px, py) => [px, py]);
+    x.save(); x.translate(hx, hy); x.scale(sc, sc);
+    weaponAt(x, run, 0, 0, face, look, o, (px, py) => [hx + px * sc, hy + py * sc]);
+    x.restore();
+  }
+  // wp：把武器座標換回地圖座標（揚塵、震波這些特效用）
+  function weaponAt(x, run, hx, hy, face, look, o, wp) {
     const w = (o && o.w) || heroWeapon(run);
     const def = WEAPON[w.base] || (w.kind === 'bow' ? WEAPON.bow : w.kind === 'staff' ? WEAPON.staff : WEAPON.sword);
     if (!def) return;
@@ -1171,8 +1223,9 @@
     // 戰鎚砸到地面：揚塵、震波、畫面小震
     if (def.heavy && atk > 0 && p >= 0.63 && !R.hamHit) {
       R.hamHit = true;
-      burst(tipX, tipY, '#8a7a6a', 12, 110, 0.55);
-      R.fxs.push({ k: 'shock', x: tipX, y: tipY + 4, t: 0, life: 0.35, r: T * 1.7, col: '#ffe8b0' });
+      const [gx, gy] = wp(tipX, tipY);
+      burst(gx, gy, '#8a7a6a', 12, 110, 0.55);
+      R.fxs.push({ k: 'shock', x: gx, y: gy + 4, t: 0, life: 0.35, r: T * 1.7, col: '#ffe8b0' });
       R.shake = Math.max(R.shake, 5);
       LH.Sfx && LH.Sfx.play('smash');
     }
@@ -1183,7 +1236,7 @@
       x.drawImage(Spr.glow(col, gr), tipX - gr, tipY - gr);
       x.restore();
       pix(x, tipX, tipY, '#0d0b10', 8); pix(x, tipX, tipY, col, 6); pix(x, tipX - 1, tipY - 1, '#ffffff', 2);
-      if (atk > 0 && Math.random() < 0.5) part({ k: 'glow', x: tipX + (Math.random() - 0.5) * 10, y: tipY + (Math.random() - 0.5) * 10, vy: -30, col, life: 0.35, size: 4 });
+      if (atk > 0 && Math.random() < 0.5) { const [gx, gy] = wp(tipX, tipY); part({ k: 'glow', x: gx + (Math.random() - 0.5) * 10, y: gy + (Math.random() - 0.5) * 10, vy: -30, col, life: 0.35, size: 4 }); }
     }
     // 傳說以上的武器尖端閃光
     if (wr >= 4 && !def.orb) {
@@ -1255,8 +1308,8 @@
       x.beginPath(); x.ellipse(px + size / 2, py + size - 3, size * 0.5, size * 0.18, 0, 0, Math.PI * 2); x.stroke();
       R.labels.push({ x: px + size / 2, y: py - 12, s: e.eName, col });
     }
-    // 英雄的圖比一格大：寬 22、高 26 個像素點，腳踩在格子底部
-    const dw = hero ? 44 : size, dh = hero ? 52 : size;
+    // 英雄的圖比一格大（電腦版寬 22、高 26 個像素點，每點畫 2×2），腳踩在格子底部；手機版可以再放大 HS 倍
+    const dw = hero ? img.width * 2 * HS : size, dh = hero ? img.height * 2 * HS : size;
     const dx = Math.round(px + ox + (size - dw) / 2), dy = Math.round(py + oy + (hero ? size - dh - 1 : 0));
     const ccx = dx + dw / 2, ccy = dy + dh * 0.6;
     if (hero && run.phase !== 'dead') heroAura(x, look, ccx, dy + dh);
@@ -1265,8 +1318,8 @@
       const back = backWeapon(run, look);
       if (back) {
         const f = e.face < 0 ? -1 : 1;
-        const hx2 = (f < 0 ? dx + dw - 32 : dx + 32) - f * 14;
-        drawWeapon(x, run, hx2, dy + 35, f, look, back);
+        const hx2 = ccx + f * (10 - 14) * HS;
+        drawWeapon(x, run, hx2, dy + dh - 17 * HS, f, look, back, HS);
       }
     }
     x.save();
@@ -1281,10 +1334,10 @@
     if (hero) {
       if (run.phase !== 'dead') {
         const bob = img === fr.idle[1] || img === fr.walk[1] || img === fr.walk[3] ? 2 : 0;
-        const hx = e.face < 0 ? dx + dw - 32 : dx + 32;
-        drawWeapon(x, run, hx, dy + 37 + bob, e.face < 0 ? -1 : 1, look);
+        const f = e.face < 0 ? -1 : 1;
+        drawWeapon(x, run, ccx + f * 10 * HS, dy + dh - (15 - bob) * HS, f, look, null, HS);
         if (look.offhand && look.offhand.b === 'orb') {
-          const qx = e.face < 0 ? dx + dw - 6 : dx + 6, qy = dy + 28 + Math.sin(R.time * 3) * 2;
+          const qx = ccx - f * 16 * HS, qy = dy + dh - 24 * HS + Math.sin(R.time * 3) * 2;
           x.save(); x.globalCompositeOperation = 'lighter';
           x.drawImage(Spr.glow('#7fe7ff', 12), qx - 12, qy - 12);
           x.restore();
@@ -1722,12 +1775,15 @@
       // 先彈起再落下（back-out）
       const k = Math.min(1, t.t / 0.18);
       const pop = t.big ? 1 + 0.6 * Math.sin(k * Math.PI) * (1 - k * 0.5) : 1 + 0.25 * Math.sin(k * Math.PI);
-      const fs = Math.round((t.big ? 21 : 14) * pop);
+      // 傷害數字：普通的小字、技能的大字、燒傷的更小更淡
+      const base = t.v == null ? (t.big ? 21 : 14) : t.dot ? 9 : t.big ? 17 : 11;
+      const fs = Math.round(base * pop);
       x.font = `900 ${fs}px "Silkscreen", "Noto Sans TC", monospace`;
-      x.globalAlpha = Math.max(0, 1 - Math.pow(Math.max(0, p - 0.35) / 0.65, 2));
-      const yy = t.y - (1 - Math.pow(1 - Math.min(1, p * 1.6), 3)) * 30;
+      x.globalAlpha = Math.max(0, 1 - Math.pow(Math.max(0, p - 0.35) / 0.65, 2)) * (t.dot ? 0.7 : 1);
+      const yy = t.y - (1 - Math.pow(1 - Math.min(1, p * 1.6), 3)) * (t.v == null ? 30 : 20);
       const xx = t.x + t.vx * p;
-      x.lineWidth = t.big ? 5 : 4;
+      t.cx = xx; t.cy = yy;
+      x.lineWidth = t.v == null ? (t.big ? 5 : 4) : t.big ? 4 : 3;
       x.strokeStyle = 'rgba(0,0,0,0.9)';
       x.strokeText(t.s, xx, yy);
       x.fillStyle = t.col;

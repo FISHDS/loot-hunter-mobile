@@ -1234,7 +1234,7 @@
         m._burnAcc = 0;
         if (v > 0) {
           m.hp -= v;
-          fx(run, { k: 'dmg', x: m.x, y: m.y, v: Math.round(v), elem: 'fire', dot: true });
+          fx(run, { k: 'dmg', x: m.x, y: m.y, v: Math.round(v), elem: 'fire', dot: true, id: m.id });
           if (m.hp <= 0) { killMob(G, run, m, { trigger: true }); return; }
         }
       }

@@ -208,3 +208,6 @@ input, select, textarea { -webkit-user-select: text; user-select: text; font-siz
 .cond-step .btn { min-width: 38px; }
 .skchip { cursor: pointer; }
 #dungeon .tog.locked { opacity: .55; }
+
+/* 手機版主角是大頭，高度跟著圖片比例 */
+.doll .hero-big { height: auto; }
