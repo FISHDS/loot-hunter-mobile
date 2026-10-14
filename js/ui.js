@@ -714,8 +714,10 @@
     const opts = (ci === 1 ? [['none', '（無第二條件）']] : []).concat(COND);
     const k = c ? c.k : 'none';
     let param = '';
-    if (k === 'enemies') param = `<input type="number" min="1" max="12" value="${c.n}" data-rule="${ri}" data-c="${ci}" data-f="n"> 隻`;
-    if (k === 'hpBelow' || k === 'mpAbove') param = `<input type="number" min="5" max="95" step="5" value="${c.p}" data-rule="${ri}" data-c="${ci}" data-f="p"> %`;
+    // 手機：用 − / ＋ 按鈕調整數字，不必叫出鍵盤
+    const step = (f, v, unit) => `<span class="cond-step"><button class="btn small" data-act="condStep" data-rule="${ri}" data-c="${ci}" data-f="${f}" data-d="-1">−</button><b>${v}</b><button class="btn small" data-act="condStep" data-rule="${ri}" data-c="${ci}" data-f="${f}" data-d="1">＋</button>${unit}</span>`;
+    if (k === 'enemies') param = step('n', c.n, ' 隻');
+    if (k === 'hpBelow' || k === 'mpAbove') param = step('p', c.p, ' %');
     return `<select data-rule="${ri}" data-c="${ci}" data-f="k">${opts.map(([v, n]) => `<option value="${v}" ${v === k ? 'selected' : ''}>${n}</option>`).join('')}</select>${param}`;
   }
   TABS.auto = () => {
@@ -728,7 +730,7 @@
       n++;
       const s = D.SKILLS[r.id];
       return `<div class="rule ${r.on ? '' : 'off'}"><div class="pri">${n}</div>
-        <div class="skchip">${skillIcon(r.id)}<span>${s.name}<br><small style="color:var(--muted)">法力 ${s.mana}</small></span></div>
+        <div class="skchip" data-act="skillInfo" data-id="${r.id}">${skillIcon(r.id)}<span>${s.name}<br><small style="color:var(--muted)">法力 ${s.mana}</small></span></div>
         <div class="conds"><label class="check"><input type="checkbox" data-act="ruleOn" data-i="${i}" ${r.on ? 'checked' : ''}>啟用</label>
           ${condEditor(i, 0, r.cond[0])} <span>而且</span> ${condEditor(i, 1, r.cond[1])}</div>
         <div><button class="btn small" data-act="ruleUp" data-i="${i}">↑</button><button class="btn small" data-act="ruleDown" data-i="${i}">↓</button><button class="btn small red" data-act="ruleDel" data-i="${i}">✕</button></div></div>`;
@@ -915,7 +917,7 @@
     const ab = $('h-auto');
     ab.classList.toggle('on', run.autoCast || run.mode === 'idle');
     ab.textContent = run.mode === 'idle' ? '自動：掛機' : run.autoCast ? '自動：開' : '自動：停';
-    ab.disabled = run.mode === 'idle';
+    ab.classList.toggle('locked', run.mode === 'idle');
     $('h-retreat').classList.toggle('on', run.retreatAfter);
     $('h-retreat').classList.add('warn');
     // 球
@@ -1332,7 +1334,24 @@
     rec: (el) => { const id = el.dataset.id; if (UI.recOpen.has(id)) UI.recOpen.delete(id); else UI.recOpen.add(id); renderCamp(); },
     clearSummary: () => { UI.G.idle.summary = null; renderCamp(); },
     mode: (el) => { Game.setMode(UI.G, el.dataset.v); if (el.dataset.v === 'idle' && UI.modalKind === 'loot') closeModal(); },
-    autocast: () => { const r = UI.G.run; if (r) r.autoCast = !r.autoCast; },
+    autocast: () => {
+      const r = UI.G.run;
+      if (!r) return;
+      if (r.mode === 'idle') { toast('掛機時一定會自動施法；想自己控制技能，先切到「主動」', 'hint'); return; }
+      r.autoCast = !r.autoCast;
+      toast(r.autoCast ? '自動施法：開' : '自動施法：停（只放你點的技能）', 'good');
+    },
+    condStep: (el) => {
+      const r = UI.G.autocast.rules[+el.dataset.rule];
+      const c = r && r.cond[+el.dataset.c];
+      if (!c) return;
+      const d = +el.dataset.d;
+      if (el.dataset.f === 'n') c.n = U.clamp((c.n || 3) + d, 1, 12);
+      else c.p = U.clamp((c.p || 50) + d * 5, 5, 95);
+      sfx('click');
+      renderCamp();
+    },
+    skillInfo: (el) => { const h = skillTip(el.dataset.id); if (h) { openSheet(h + '<div class="detail-actions"><button class="btn" data-act="closeSheet">關閉</button></div>'); sfx('click'); } },
     speed: (el) => { const r = UI.G.run; if (r) r.speed = +el.dataset.v; UI.G.exp.speed = +el.dataset.v; },
     retreatAfter: () => { const r = UI.G.run; if (r) { r.retreatAfter = !r.retreatAfter; toast(r.retreatAfter ? '這一層清完就撤退' : '取消撤退', 'good'); } },
     lootSell: (el) => { Game.lootSell(UI.G, el.dataset.id); UI.lootSel = null; sfx('sell'); renderLoot(); },

@@ -199,3 +199,12 @@ body[data-tab="expedition"] .hero-panel { display: flex; }
 .tray { width: 52px; }
 .tray-gems { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 3px; max-height: 120px; overflow: hidden; }
 .tray-gems .gem { width: 10px; height: 10px; }
+
+/* 輸入框：可以打字、字夠大（手機點下去不會放大畫面） */
+input, select, textarea { -webkit-user-select: text; user-select: text; font-size: 16px !important; }
+.rule select { max-width: 100%; }
+.cond-step { display: inline-flex; align-items: center; gap: 6px; }
+.cond-step b { min-width: 26px; text-align: center; color: var(--text); font-family: var(--pix); }
+.cond-step .btn { min-width: 38px; }
+.skchip { cursor: pointer; }
+#dungeon .tog.locked { opacity: .55; }
